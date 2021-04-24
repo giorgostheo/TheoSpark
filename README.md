@@ -2,11 +2,65 @@
 Spark is the worst and I hate it. Let's make something better. 
 
 # How to use
+
+Run this first !!!!
+```bash
+git clone https://github.com/giorgostheo/TheoSpark.git
+cd TheoSpark
+pip/conda install paramiko
+```
+
+All you need is a pair of dicts. One that looks like this
+```python
+# hosts.json
+{
+    "Server1 nickname ":{
+        "hostname": "ip-address",
+        "uname": "username",
+        "port": 22,
+        "theosparkpath": "/home/"user"/.theospark/"
+    },
+    "Server2 nickname ":{
+        "hostname": "ip-address",
+        "uname": "username",
+        "port": 22,
+        "theosparkpath": "..path/.theospark/"
+    },
+    .
+    .
+    .
+}
+```
+and contains all the hosts that are part of your clusters, and one that looks like this
+```python
+{
+    "command": {
+        "Server1 nickname": "python sample.py",
+        "Server2 nickname": "/home/me/anaconda3/bin/python sample.py"
+    },
+    "script": "sample.py",
+    "inputdir": "data/",
+    "inputname": "data.txt",
+    "output": "result.pkl",
+    "hosts": "hosts.json",
+    "sync": "files_to_sync.txt"
+}
+```
+that contains all the info about your script.
+
+Figure out the rest
+
+--- old ---
+
 This needes to be very simple and quick to write. Essentially, what you need is a pyfile with some computation. This pyfile reads from a file, performs some computation and then outputs a result. 
 
 TheoSpark will do the following:
 
 ## Setup
+
+
+
+
 - The user will create a file that will contain all the IPs of the slaves. This NEEDS to be VERY VERY SIMPLE because spark needs setup and i hate that with all my soul. File should be like IP-PW-PORT-UNAME (or with keys and no pw even better). 
 - For every slave, check if a connection is possible and if not, stop.
 - Theoretically, TheoSpark should be able to clone python envs and install-remove packages but who has time. A simple fix is to supply the desired python path for the computation at runtime (for each slave as part of the file mentioned above).
