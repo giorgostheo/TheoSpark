@@ -1,0 +1,16 @@
+{
+    "slave1":{
+        "hostname": "lolxd",
+        "uname": "user",
+        "port": 22,
+        "theosparkpath": "/home/user/.theospark/"
+    },
+
+    "me32":{
+        "hostname": "loler",
+        "uname": "user",
+        "port": 22,
+        "theosparkpath": "/home/user/.theospark/"
+    }
+
+}

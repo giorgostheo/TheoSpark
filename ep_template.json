@@ -1,0 +1,12 @@
+{
+    "command": {
+        "slave1": "python sample.py",
+        "slave2": "python sample.py",
+    },
+    "script": "sample.py",
+    "inputdir": "data/",
+    "inputname": "dt.txt",
+    "output": "res.pkl",
+    "hosts": "hosts.json",
+    "sync": "files.txt"
+}
