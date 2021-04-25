@@ -1,6 +1,8 @@
+import threading
 import paramiko
 import json
 import os
+
 
 def sync(nickname, hostname, uname, port, tspath, files, partition, inputname):
     
@@ -99,13 +101,47 @@ def run_command(nickname, hostname, uname, port, tspath, command='ls'):
     s.close()
 
 
+def pipeline(host, hd, ep, partition, files, cmd=None):
+
+    print(hd)
+# sync theospark dir
+    sync(host, hd['hostname'], hd['uname'], hd['port'], hd['theosparkpath'], files, partition, ep['inputname'])
+
+    # exec command
+    if type(ep['command']) == dict:
+        comm = ep['command'][host]
+    else:
+        comm = ep['command']
+
+    if cmd is not None:
+        comm = cmd
+
+    run_command(host, hd['hostname'], hd['uname'], hd['port'], hd['theosparkpath'], f'cd {hd["theosparkpath"]}; {comm}')
+
+    # fetch results
+    if cmd is not None:
+        return
+
+    fetch(host, hd['hostname'], hd['uname'], hd['port'], hd['theosparkpath'], ep['output'])
+
+
 exec_plan = os.environ['EP']
+cmd = os.getenv('CMD', None)
+
+
+# create dir if the command is the distributed one
+if cmd is None:
+    try:
+        os.mkdir('outputs/')
+    except:
+        pass
 
 # transfer syncs and script + partition
 ep = json.load(open(exec_plan))
 hosts = json.load(open(ep['hosts']))
 
-files = open('files.txt').read().splitlines()+[ep['script']]
+threads = []
+files = open(ep['sync']).read().splitlines()+[ep['script']]
 
 partitions = os.listdir(ep['inputdir'])
 
@@ -116,21 +152,11 @@ if len(partitions)!=len(hosts):
 for i, host in enumerate(hosts):
     partition = ep['inputdir']+partitions[i]
     hd = hosts[host]
-    sync(host, hd['hostname'], hd['uname'], hd['port'], hd['theosparkpath'], files, partition, ep['inputname'])
 
-    # exec command
-    if type(ep['command']) == dict:
-        comm = ep['command'][host]
-    else:
-        comm = ep['command']
-
-    run_command(host, hd['hostname'], hd['uname'], hd['port'], hd['theosparkpath'], f'cd {hd["theosparkpath"]}; {comm}')
-
-    # fetch results
-    try:
-        os.mkdir('outputs/')
-    except:
-        pass
-
-    fetch(host, hd['hostname'], hd['uname'], hd['port'], hd['theosparkpath'], ep['output'])
+    #t = threading.Thread(target=pipeline, args=(host, hd, ep, partition, files, cmd))
+    #t.start()
+    #threads.append(t)
+#for t in threads:
+    #t.join()
+    pipeline(host, hd, ep, partition, files, cmd=cmd)
 
